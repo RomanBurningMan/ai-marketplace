@@ -44,21 +44,24 @@ observable outcome in plain language and keep technicals to a minimum; format an
 inline code.
 
 ### `# Acceptance Criteria`
-Always present. A list of criteria in **GIVEN… WHEN… THEN…** format. Draft these from the brief, then
-let the user refine them in the preview. Prefer several small, independently checkable criteria over
-one big one.
+Always present. A **numbered list** of criteria (`1.`, `2.`, `3.` — never plain bullets), so
+reviewers and QA can reference each one unambiguously ("AC 3"). Draft these from the brief, then let
+the user refine them in the preview. Prefer several small, independently checkable criteria over one
+big one.
 
-**Formatting:** within each bullet, put `GIVEN`, `WHEN`, and `THEN` in **bold** and each on its own
-line (a line break inside the same list item via `<br>`, not three separate bullets). This gives
-every criterion a consistent, scannable shape. Example:
+**Shape of a criterion:** each numbered item holds **one full, coherent sentence** that states the
+behaviour to verify — no bold keywords, no line breaks inside the item, no telegram-style fragments.
+Fold a Given/When/Then ordering into the sentence when it reads naturally ("Given …, when …,
+then …"); when it doesn't, write a plain sentence instead — a readable sentence always takes
+precedence over the GIVEN/WHEN/THEN format. Example:
 
 ```
-* **GIVEN** an account with no saved records<br>
-  **WHEN** the user opens the list view<br>
-  **THEN** an empty-state message is shown instead of a loading spinner
+1. Given an account with no saved records, when the user opens the list view, an empty-state
+   message is shown instead of a loading spinner.
+2. The empty-state message links to the "create record" form.
 ```
 
-See `gitlab-markdown.md` for why `<br>` is used (GitLab renders it reliably inside a list item).
+In markdown this is an ordinary ordered list.
 
 **What is not an acceptance criterion.** A criterion is something a reviewer or QA can verify against
 the running system, written in plain language. These four keep appearing and none of them belong —
@@ -84,16 +87,16 @@ Plan for the developer, not in the sign-off contract.
 
 **Don't force a count.** Fewer criteria and less technical criteria are different goals. Keep every
 distinct verifiable behaviour as its own criterion so a reviewer can point at one unambiguously;
-merging two to shorten the list makes sign-off harder, not easier.
+merging two to shorten the list makes sign-off harder, not easier. A work item may legitimately end
+with two criteria or with six.
 
 **Sentry follow-up criterion (conditional):** if the work item references any Sentry issue(s) — a
 link in the Incident `## Data` section, or mentioned in the brief — add a criterion that the issue
 must be **Resolved** once the work is done. Name the specific issue when known. Example:
 
 ```
-* **GIVEN** the linked Sentry issue (`PROJECT-BACKEND-1A2B`)<br>
-  **WHEN** this work item is delivered<br>
-  **THEN** the Sentry issue is marked Resolved and stops recurring
+3. Once this work item is delivered, the linked Sentry issue (`PROJECT-BACKEND-1A2B`) is marked
+   Resolved and stops recurring.
 ```
 
 Omit this when no Sentry issue is connected to the work item.
@@ -104,7 +107,13 @@ the published documentation is updated to reflect the endpoints or commands name
 Without it you ship fields consumers can't discover, because they read the published reference rather
 than your code. Name the project's actual docs location (Stoplight, Swagger, a docs site, a README)
 rather than assuming one, and delegate the specifics to QA Notes instead of restating every field, so
-the criterion doesn't go stale when the field list changes. Omit it when nothing published changes.
+the criterion doesn't go stale when the field list changes. Example:
+
+```
+4. The Stoplight documentation has been updated to reflect the endpoints mentioned in the QA Notes.
+```
+
+Omit it when nothing published changes.
 
 ### `# Action Points`  (**only when the work item isn't fully specified** — after Acceptance Criteria)
 
@@ -113,20 +122,27 @@ isn't ours to give — typically a contract detail owned by another team, or a p
 open. A **numbered list**, and unlike QA Notes and Implementation Plan it stays **visible**: an
 unanswered blocking question that nobody sees is worse than no question at all.
 
-What qualifies: an upstream field name, type, unit or scale left ambiguous; a contradiction within the
-source material; a decision waiting on someone else. Each point should say what to confirm, with whom,
-and what changes depending on the answer — "Confirm the field name" is weak, "Confirm the field name:
-the upstream item offers both `is_branded` and `type`, and we can't map either until it's fixed" tells
-the reader why they can't just start.
+What qualifies:
 
-What does **not** qualify: work we could simply decide ourselves. If it's ours to choose, choose it in
-the Implementation Plan.
+* an upstream field name, type, unit or scale that the upstream item left ambiguous
+* a contradiction *within* the source material ("the summary says total checks, the criterion says
+  checks with a response — which is intended?")
+* a decision waiting on someone else (design, product, another team's work item)
+
+Each point should say what to confirm, with whom, and why it matters — what changes depending on the
+answer. "Confirm the field name" is weak; "Confirm the field name: the upstream item offers both
+`is_branded` and `type`, and we can't map either until it's fixed" tells the reader why they can't
+just start.
+
+What does **not** qualify: work we could simply decide ourselves, or a reminder to do part of the
+work item. If it's ours to choose, choose it in the Implementation Plan.
 
 **Retiring them.** Action Points are temporary. When one is answered, fold the answer into the
 Acceptance Criteria, QA Notes or Implementation Plan wherever it now belongs, then delete the point.
-When all are answered, remove the whole section rather than leaving an empty heading.
+When all of them are answered, remove the whole section rather than leaving an empty heading. A work
+item whose Action Points all sit there answered-in-a-comment is one nobody trusts.
 
-### `# QA Notes`  (**only when relevant** — directly after Acceptance Criteria)
+### `# QA Notes`  (**only when relevant** — directly after Acceptance Criteria, or after Action Points)
 Include this section **only** when the work item involves specific **API endpoints** or **console/CLI
 commands**. Its job is to make a QA's testing easier by handing them the concrete entry points:
 
@@ -152,7 +168,8 @@ stays folded and the work item stays readable. See `gitlab-markdown.md` for the 
 This is also the home for everything the Acceptance Criteria deliberately exclude — naming
 conventions, types and nullability, internal structure — plus the reasoning behind a decision, so a
 reviewer doesn't reopen it. Where a choice went against an obvious alternative, or against an existing
-pattern in the codebase, say so and say why.
+pattern in the codebase, say so and say why: "this deliberately diverges from X, which throws on an
+unknown value; throwing is right there and wrong here because…".
 
 **Provenance (when the plan rests on someone else's answer).** If the field-level detail came from
 another team, open the plan by citing it: who confirmed it, when, a link to where, and whether it's
@@ -194,7 +211,7 @@ apply it everywhere for consistency — including inside the Implementation Plan
 | Title | A concise, verb/subject-led title derived from the brief; confirmed in preview. |
 | Labels | Asked (optional). Sent via `labels` as a comma-separated string. **Only existing labels** — never invent one (GitLab silently creates unknown labels) and never add one the user didn't ask for; validate before applying. |
 | Assignee | Optional. Resolve username → numeric id (`users?username=…`); sent via `assignee_ids[]`. Default unassigned. |
-| Confidential | Optional, **default off**. Sent via `confidential=true` when chosen. |
+| Confidential | **Default on.** Always sent as `confidential=true` unless the user explicitly asks for a public work item. |
 | Milestone | **Not set** by default (backlog). Optional; resolve title → numeric `milestone_id`. |
 | Weight / Due date / Priority | **Not set** by the skill — left at project defaults. |
 
@@ -211,12 +228,8 @@ apply it everywhere for consistency — including inside the Implementation Plan
 
 # Acceptance Criteria
 
-* **GIVEN** …<br>
-  **WHEN** …<br>
-  **THEN** …
-* **GIVEN** …<br>
-  **WHEN** …<br>
-  **THEN** …
+1. <one full-sentence criterion>
+2. <one full-sentence criterion>
 
 # Action Points               ← only if something must be confirmed before the work is buildable; stays VISIBLE
 1. <what to confirm, with whom, and what changes depending on the answer>
@@ -255,9 +268,8 @@ apply it everywhere for consistency — including inside the Implementation Plan
 
 # Acceptance Criteria
 
-* **GIVEN** …<br>
-  **WHEN** …<br>
-  **THEN** …
+1. <one full-sentence criterion>
+2. <one full-sentence criterion>
 
 # Action Points               ← only if something must be confirmed before the work is buildable; stays VISIBLE
 1. <what to confirm, with whom, and what changes depending on the answer>

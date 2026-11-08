@@ -2,13 +2,15 @@
 name: create-gitlab-work-item
 description: >-
   Create or update a well-structured GitLab work item, following a standard template
-  (Context, Expected Result, Acceptance Criteria in GIVEN/WHEN/THEN, and optional collapsed QA
-  Notes / Implementation Plan; plus Data / Steps to Reproduce / Actual Result for Incidents). Use
+  (Context, Expected Result, numbered full-sentence Acceptance Criteria, and optional Action Points,
+  QA Notes and Implementation Plan sections; plus Data / Steps to Reproduce / Actual Result for
+  Incidents). Use
   whenever the user wants to create, raise, open, file, or log a GitLab work item / issue / ticket /
   incident / task / test case / bug / story — e.g. "create a GitLab issue for…", "raise a ticket
   about…", "open an incident for…", "log a task for…", "/create-gitlab-work-item" — and equally when
   they want to change one that already exists: "update the work item", "revise the description",
-  "reword the acceptance criteria", "fold this answer into the issue". Also offer to use
+  "reword the acceptance criteria", "fold this answer into the issue", "these questions got
+  answered, update the work items". Also offer to use
   it proactively when the user describes a bug, task, or piece of work that clearly belongs in a
   work item, even if they don't explicitly say "GitLab". The skill creates the work item through the
   `glab` CLI (using `glab api` so it can set the native work-item type), defaults to the current
@@ -87,6 +89,10 @@ Ask the user (or infer from what they already said):
   - `Task` → GitLab work-item "task".
   - `Test case` → maps to `test_case`, which **requires the Ultimate tier**. If creation is later
     rejected for tier reasons, say so plainly and offer to fall back to `Issue`.
+  When choosing between `Issue` and `Task`, apply the **observable-user-outcome test**: if delivering
+  the work item changes something a user can see or do, it's an `Issue`; if it only moves the system
+  towards that (wiring, plumbing, an event nobody consumes yet), it's a `Task`. A work item whose
+  value only materialises once *another* team consumes it is a `Task`, not an `Issue`.
 - **The brief** — a sentence or two on what the work item is about. You'll expand this into the
   template; ask only the follow-up questions you genuinely need (for an Incident: the relevant IDs
   and reproduction steps; for the others: the desired outcome).
@@ -103,23 +109,27 @@ Markdown (see `references/gitlab-markdown.md` for the exact GFM, including `<det
 - `## Data`, `## Steps to Reproduce`, `## Actual Result` — **only for Incidents**. Drop any Data line
   that doesn't apply rather than leaving `<…>` placeholders.
 - `# Expected Result` — always.
-- `# Acceptance Criteria` — always; draft GIVEN/WHEN/THEN criteria inferred from the brief. The user
-  will refine them in the preview, so propose concrete criteria rather than vague ones. Format each
-  criterion as a single bullet with **bold** `GIVEN` / `WHEN` / `THEN`, each on its own line within
-  that bullet (line breaks inside the item via `<br>`, not three separate bullets) — see the template
-  and `references/gitlab-markdown.md` for the exact markdown.
+- `# Acceptance Criteria` — always; draft a **numbered list** of criteria inferred from the brief.
+  The user will refine them in the preview, so propose concrete criteria rather than vague ones.
+  Each criterion is one numbered item holding **one full, coherent sentence** that states the
+  behaviour to verify. Fold a Given/When/Then ordering into the sentence when it reads naturally
+  ("Given …, when …, then …"); when it doesn't, write a plain sentence instead — a readable sentence
+  always takes precedence over the GIVEN/WHEN/THEN format. See the template for the exact markdown.
   - **Sentry follow-up:** if the work item references any Sentry issue(s) (e.g. a link in the Data
     section or mentioned in the brief), add a criterion that the linked Sentry issue is **Resolved**
-    once the work is done — e.g. *GIVEN the linked Sentry issue / WHEN this work item is delivered /
-    THEN the Sentry issue is marked Resolved and stops recurring.* Reference the specific issue
+    once the work is done — e.g. *Once this work item is delivered, the linked Sentry issue is marked
+    Resolved and stops recurring.* Reference the specific issue
     (ID/link) when one is known. Skip this criterion when no Sentry issue is involved.
   - **A criterion states observable behaviour, in plain language.** Implementation decisions —
     naming conventions, types and nullability, internal payload structure — are not acceptance
     criteria and belong in the Implementation Plan. See the template's "What is not an acceptance
     criterion" section before drafting.
   - **Published-documentation follow-up:** if the work item changes a documented or published
-    interface, add a criterion that the published documentation is updated to reflect the endpoints
-    or commands named in QA Notes. Name the project's real docs location rather than assuming one.
+    interface (an API payload, an endpoint, a CLI contract), add a criterion that the published
+    documentation is updated to reflect the endpoints or commands named in QA Notes. Name the
+    project's actual docs location (Stoplight, Swagger, a docs site, a README) rather than assuming
+    one, and delegate the specifics to QA Notes instead of restating every field, so the criterion
+    doesn't rot when the field list changes. Skip it when nothing published changes.
 - `# Action Points` — **only if the work item cannot be fully specified yet.** A visible section (not
   a `<details>` block) holding the numbered questions that must be answered before the work is
   buildable — typically things only another team can confirm. See the template for what qualifies and
@@ -128,7 +138,7 @@ Markdown (see `references/gitlab-markdown.md` for the exact GFM, including `<det
   Goes directly after Acceptance Criteria. List the concrete things that make a QA's testing easier:
   endpoint URLs/paths (with method), and console command names **with their parameters/flags spelled
   out** where you can. Format endpoints and commands as inline code (or a fenced block for a full
-  command line). Render it as a visible `# QA Notes` **heading followed by a collapsed
+  command line). Like the Implementation Plan, render it as a visible `# QA Notes` **heading followed by a collapsed
   `<details>` block** that holds the notes. If the work item has no such endpoints or commands,
   **omit this section entirely** — don't add an empty or speculative QA Notes.
 - `# Implementation Plan` — **only if the user provided or approved real implementation detail.** If
@@ -258,7 +268,8 @@ preference exists when you can't find one.
 
 ## Updating an existing work item
 
-Use the same template and standards as a fresh one. Four rules, in order:
+Use the same template and the same standards as a fresh work item — an update should leave it as
+well-formed as it started. Four rules, in order:
 
 1. **Re-fetch immediately before writing.** The description is replace-only, so an update built from a
    copy read earlier in the conversation silently reverts anyone who edited in between — including the
@@ -267,15 +278,20 @@ Use the same template and standards as a fresh one. Four rules, in order:
    heading, every `<details>` block, and every link. Anything omitted is deleted with no error.
 3. **Preview the change as a diff** — "AC 3 reworded, AC 5 removed, Implementation Plan gains two
    bullets, Action Point 1 resolved and dropped" — not a re-print of the whole body. Get explicit
-   approval when *you* are proposing the update; when the user has told you to make the change, just
-   make it and report what changed.
+   approval when *you* are proposing the update (you spotted a discrepancy, or new information
+   arrived). When the user has explicitly told you to make the change — "update the work items",
+   "reword AC 3", "drop that criterion" — just do it and report afterwards; don't make someone approve
+   an edit they just ordered.
 4. **Tell the owner, for material changes.** If the work item is assigned or in an active iteration and
    the change is material — reworked criteria, changed scope, a new blocking question — add a note
    saying what changed and why, mentioning the assignee. Skip this for typos, formatting and links, or
-   the rule gets ignored wholesale.
+   the rule gets ignored wholesale. When the item is in an iteration but unassigned, still comment and
+   note there was nobody to notify. Keep the note short: a one-line header of what happened, then the
+   detail in a collapsed `<details>` block, so the thread stays scannable.
 
 **Retiring Action Points:** when one is answered, fold the answer into the criteria, QA Notes or
-Implementation Plan, then delete the point; remove the section once all are answered.
+Implementation Plan, then delete the point; remove the section once all are answered rather than
+leaving an empty heading. Record where the answer came from (see the template's provenance note).
 
 ## Notes
 

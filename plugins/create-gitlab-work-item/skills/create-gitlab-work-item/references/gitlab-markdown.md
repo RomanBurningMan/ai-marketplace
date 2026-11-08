@@ -46,18 +46,10 @@ would show as raw text). The same pattern is used for `# QA Notes`:
 Emit a `<details>` section **only when the section applies** — omit the whole heading + block
 otherwise. `QA Notes` comes after Acceptance Criteria and before any Implementation Plan.
 
-## Acceptance Criteria line breaks
+## Acceptance Criteria
 
-Within a single bullet, keep `GIVEN` / `WHEN` / `THEN` bold and each on its own line using `<br>`:
-
-```markdown
-* **GIVEN** an account with no saved records<br>
-  **WHEN** the user opens the list view<br>
-  **THEN** an empty-state message is shown instead of a loading spinner
-```
-
-Use `<br>` rather than two trailing spaces — it survives copy/paste and round-trips through the API
-reliably, and GitLab renders it inside list items.
+Acceptance Criteria are an ordinary markdown ordered list: `1.`, `2.`, `3.`, one full sentence per
+item, no bold keywords and no `<br>` line breaks inside an item.
 
 ## Inline code and fenced blocks
 
