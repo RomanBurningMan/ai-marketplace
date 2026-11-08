@@ -7,7 +7,7 @@ When the work item later changes, the same skill updates it against the same sta
 ## Features
 
 - **Native work-item types** — creates a real GitLab `Issue`, `Incident`, `Task`, or `Test case` (via `glab api`, which can set the type that `glab issue create` cannot)
-- **Standard template** — `Context`, `Expected Result`, and `GIVEN/WHEN/THEN` acceptance criteria every time, plus Incident-only `Data` / `Steps to Reproduce` / `Actual Result` sections
+- **Standard template** — `Context`, `Expected Result`, and numbered, full-sentence acceptance criteria every time, plus Incident-only `Data` / `Steps to Reproduce` / `Actual Result` sections
 - **Collapsible sections** — `QA Notes` (endpoints and CLI commands) and `Implementation Plan` render as collapsed `<details>` blocks, keeping the work item scannable
 - **Repo-aware** — defaults to the current repo's GitLab project; falls back to a remembered project, then asks. Never hard-coded
 - **Remembers your preferences** — recalls your fallback project across sessions and announces the default so you can override it
